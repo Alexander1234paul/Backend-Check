@@ -1,13 +1,13 @@
 const Router = require("express");
 const {
-    GETTest, addPerson, addCompany, addTest
+    login, register
   } = require("../../controllers/authentication/index");
 
 
 const router = Router();
-router.get("/", GETTest);
-// router.post("/", addPerson);
-// router.post("/", addCompany);
-router.post("/", addTest);
+
+router.post("/login", login);
+router.post("/register", login);
+
 
 module.exports = router;

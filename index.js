@@ -16,6 +16,8 @@ app.use(express.json())
 
 //ROUTES
 app.use(require('./routes/administration/index'));
+app.use(require('./routes/authentication/index'));
+
 
 //EJECUTION
 
