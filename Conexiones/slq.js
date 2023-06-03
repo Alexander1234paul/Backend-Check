@@ -16,6 +16,7 @@ const pool = new Pool({
     port: '5432',
     database: 'bdd-check',
     user: 'postgres',
+    password: 'postgres'
     //password: '12345',
     /*ssl: {
         rejectUnauthorized: false,

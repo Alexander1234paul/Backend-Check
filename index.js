@@ -15,7 +15,7 @@ app.use(express.json())
 // const index_controller = require('./controllers/alquiler')
 
 //ROUTES
-app.use(require('./routes/index'));
+app.use(require('./routes/authentication/index'));
 
 //EJECUTION
 
