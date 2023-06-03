@@ -14,9 +14,9 @@ const { Pool } = require('pg');
 const pool = new Pool({
     host: 'localhost',
     port: '5432',
-    database: 'bdd_condominios',
+    database: 'bdd_check',
     user: 'postgres',
-    password: '12345',
+    // password: '12345',
     /*ssl: {
         rejectUnauthorized: false,
     }*/
