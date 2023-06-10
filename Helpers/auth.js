@@ -6,10 +6,10 @@ const { verifyToken } = require("./generateToken");
 
 const checkAuth = async (req, res, next) => {
   try {
-    // if (!req.headers.authorization) {
-    //     handleErrorResponse(res, "NOT_ALLOW", 409);
-    //   return;
-    // }
+    if (!req.headers.authorization) {
+        handleErrorResponse(res, "NOT_ALLOW", 409);
+      return;
+    }
     const token = req.headers.authorization.split(" ").pop();
     const tokenData = await verifyToken(token);
     if (tokenData._id) {
