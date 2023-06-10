@@ -21,7 +21,22 @@ const getAllRoles = async (req, res) => {
   }
 };
 
-
+const getAllUsersByIdStore = async (req, res) => {
+  try {
+    const { ID_ALMACEN } = req.params;
+    db.query("SELECT * FROM tbl_usuarios WHERE id_almacen=$1", [ID_ALMACEN],
+      (error, results) => {
+        if (error) {
+          res.status(200).json({ message: error });
+        } else {
+          res.status(200).json(results.rows);
+        }
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: "Error en el servidor" });
+  }
+}
 
 /**
  * POSTS
@@ -93,7 +108,7 @@ const postTest = async (req, res) => {
   }
 };
 
-const postCompany = async (req, res) => {
+const createCompany = async (req, res) => {
   try {
     const {
       CI_RUC,
@@ -109,24 +124,34 @@ const postCompany = async (req, res) => {
       NOMBREA,
       DIRECCIONA,
       TELEFONOA,
+      ID_ROL,
+      USUARIO,
+      PASSWORD
     } = req.body;
 
     await db.query("BEGIN");
     const queryPerson = `INSERT INTO tbl_personas(ci_ruc, nombres, apellidos, telefono, email, direccion) 
-                          VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_persona`;
+                          VALUES($1, $2, $3, $4, $5, $6) RETURNING id_persona`;
     const person = [CI_RUC, NOMBRES, APELLIDOS, TELEFONO, EMAIL, DIRECCION];
     const resultPerson = await db.query(queryPerson, person);
     const ID_PERSONA = resultPerson.rows[0].id_persona;
 
     const queryCompany = `INSERT INTO tbl_empresas(id_persona, ruc, razon, slogan, logo) 
-                          VALUES ($1, $2, $3, $4, $5) RETURNING id_empresa`;
+                          VALUES($1, $2, $3, $4, $5) RETURNING id_empresa`;
     const company = [ID_PERSONA, RUC, RAZON, SLOGAN, LOGO];
     const resultCompany = await db.query(queryCompany, company);
     const ID_EMPRESA = resultCompany.rows[0].id_empresa;
 
-    const queryStore = `INSERT INTO tbl_almacenes(id_empresa, nombre, direccion, telefono) VALUES ($1, $2, $3, $4)`;
+    const queryStore = `INSERT INTO tbl_almacenes(id_empresa, nombre, direccion, telefono) 
+                        VALUES($1, $2, $3, $4) RETURNING id_almacen`;
     const store = [ID_EMPRESA, NOMBREA, DIRECCIONA, TELEFONOA];
-    await db.query(queryStore, store);
+    const resultStore = await db.query(queryStore, store);
+    const ID_ALMACEN = resultStore.rows[0].id_almacen;
+
+    const queryUser = `INSERT INTO tbl_usuarios(id_persona, id_almacen, id_rol, usuario, password) 
+                        VALUES($1, $2, $3, $4, $5)`;
+    const user = [ID_PERSONA, ID_ALMACEN, ID_ROL, USUARIO, PASSWORD];
+    await db.query(queryUser, user);
 
     await db.query("COMMIT");
 
@@ -139,7 +164,7 @@ const postCompany = async (req, res) => {
   }
 };
 
-const postRol = async (req, res) => {
+const createRol = async (req, res) => {
   try {
     const { ROL } = req.body;
     db.query("INSERT INTO tbl_roles(rol) VALUES($1)", [ROL], (error, results) => {
@@ -155,6 +180,30 @@ const postRol = async (req, res) => {
     console.error("Error en la inserción:", error);
     res.status(500).json({ message: "Error en el servidor" });
   }
+}
+
+const createUserInStore = async (req, res) => {
+  try {
+    const { CI_RUC, NOMBRES, APELLIDOS, TELEFONO, EMAIL, DIRECCION, ID_ALMACEN, ID_ROL, USUARIO, PASSWORD } = req.body;
+
+    await db.query("BEGIN");
+    const queryPerson = `INSERT INTO tbl_personas(ci_ruc, nombres, apellidos, telefono, email, direccion) 
+                          VALUES($1, $2, $3, $4, $5, $6) RETURNING id_persona`;
+    const person = [CI_RUC, NOMBRES, APELLIDOS, TELEFONO, EMAIL, DIRECCION];
+    const resultPerson = await db.query(queryPerson, person);
+    const ID_PERSONA = resultPerson.rows[0].id_persona;
+
+    const queryUser = `INSERT INTO tbl_usuarios(id_persona, id_almacen, id_rol, usuario, password) 
+                        VALUES($1, $2, $3, $4, $5)`;
+    const user = [ID_PERSONA, ID_ALMACEN, ID_ROL, USUARIO, PASSWORD];
+    await db.query(queryUser, user);
+
+    await db.query("COMMIT");
+  } catch (error) {
+    console.error("Error en la inserción:", error);
+    res.status(500).json({ message: "Error en el servidor" });
+  }
+
 }
 
 /**
@@ -201,4 +250,4 @@ const deleteRolById = async (req, res) => {
   }
 }
 
-module.exports = { getAllRoles, postCompany, postRol, updateRol, deleteRolById };
+module.exports = { getAllRoles, getAllUsersByIdStore, createCompany, createRol, createUserInStore, updateRol, deleteRolById };

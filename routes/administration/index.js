@@ -1,10 +1,12 @@
 const Router = require("express");
-const { postCompany, postRol, getAllRoles, updateRol, deleteRolById } = require("../../controllers/administration/index");
+const { createCompany, createRol, getAllRoles, updateRol, deleteRolById, getAllUsersByIdStore, createUserInStore } = require("../../controllers/administration/index");
 
 const router = Router();
-router.post("/administration", postCompany);
-router.post("/administration/rol", postRol);
 router.get("/administration/rol", getAllRoles);
+router.get("/administration/users/:ID_ALMACEN", getAllUsersByIdStore);
+router.post("/administration", createCompany);
+router.post("/administration/rol", createRol);
+router.post("/administration/users", createUserInStore);
 router.put("/administration/rol", updateRol);
 router.delete("/administration/rol/:ID_ROL", deleteRolById);
 
